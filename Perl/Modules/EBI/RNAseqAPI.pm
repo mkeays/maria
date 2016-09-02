@@ -49,12 +49,10 @@ use 5.10.0;
 
 use Moose;
 use MooseX::FollowPBP;
-use Moose::Util::TypeConstraints;
 use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-use Data::Dumper;
 
 #=head1 ATTRIBUTES
 
