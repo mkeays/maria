@@ -1,5 +1,3 @@
-#!/use/bin/env perl
-
 =head1 NAME
 
 Bio::EBI::RNAseqAPI - A Perl interface to the EMBL-EBI RNA-seq analysis API.
