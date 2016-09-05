@@ -41,7 +41,7 @@ For more information about the API, see its L<documentation|http://www.ebi.ac.uk
 
 =cut
 
-package EBI::RNAseqAPI;
+package Bio::EBI::RNAseqAPI;
 
 use strict;
 use warnings;
