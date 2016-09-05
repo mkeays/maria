@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-EBI::RNAseqAPI - A Perl interface to the EMBL-EBI RNA-seq analysis API.
+Bio::EBI::RNAseqAPI - A Perl interface to the EMBL-EBI RNA-seq analysis API.
 
 =head1 DESCRIPTION
 
@@ -28,9 +28,9 @@ For more information about the API, see its L<documentation|http://www.ebi.ac.uk
 =head1 SYNOPSIS
 
  use 5.10.0;
- use EBI::RNAseqAPI;
+ use Bio::EBI::RNAseqAPI;
 
- my $rnaseqAPI = EBI::RNAseqAPI->new;
+ my $rnaseqAPI = Bio::EBI::RNAseqAPI->new;
 
  my $runInfo = $rnaseqAPI->get_runs_by_study(
     {
