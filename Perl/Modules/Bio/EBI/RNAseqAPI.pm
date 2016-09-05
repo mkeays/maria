@@ -120,10 +120,8 @@ Arguments should be passed as a hash containing values for "run" and
 "minimum_mapped_reads", e.g.:
 
  my $runInfo = $rnaseqAPI->get_run(
-    {
-        run => "ERR030885",
-        minimum_mapped_reads => 0
-    }
+    run => "ERR030885",
+    minimum_mapped_reads => 0
  );
 
 Run analysis information is returned in a hash reference. Returns C<undef> (and
@@ -152,11 +150,11 @@ An example of the hash returned is as follows:
 
 sub get_run {
 
-    my ( $self, $args ) = @_;
+    my ( $self, %args ) = @_;
 
     my $logger = $self->get_log_writer;
     
-    unless( $self->_hash_arguments_ok( $args, "run", "minimum_mapped_reads" ) ) {
+    unless( $self->_hash_arguments_ok( \%args, "run", "minimum_mapped_reads" ) ) {
 
         $logger->error(
             "Problem with arguments to \"get_run\" function."
@@ -167,9 +165,9 @@ sub get_run {
 
     my $restResult = $self->_run_rest_call(
         {
-            minimum_mapped_reads => $args->{ "minimum_mapped_reads" },
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" },
             function_name => "getRun",
-            function_argument => $args->{ "run" }
+            function_argument => $args{ "run" }
         }
     );
 
@@ -183,7 +181,7 @@ sub get_run {
 
         $logger->error(
             "No result found for run ",
-            $args->{ "run" }
+            $args{ "run" }
         );
 
         return;
@@ -198,10 +196,8 @@ accesses the API's "getRun" JSON endpoint to collect the analysis information
 for each run in the list provided.
 
  my $runInfo = $rnaseqAPI->get_runs_by_list(
-    {
-        runs => [ "ERR030885", "ERR030886" ],
-        minimum_mapped_reads => 0
-    }
+    runs => [ "ERR030885", "ERR030886" ],
+    minimum_mapped_reads => 0
  );
 
 Run analysis information is returned as an array reference containing one hash
@@ -212,11 +208,11 @@ reference looks like). Returns C<undef> (and logs errors) if errors are encounte
 
 sub get_runs_by_list {
 
-    my ( $self, $args ) = @_;
+    my ( $self, %args ) = @_;
 
     my $logger = $self->get_log_writer;
     
-    unless( $self->_hash_arguments_ok( $args, "runs", "minimum_mapped_reads" ) ) {
+    unless( $self->_hash_arguments_ok( \%args, "runs", "minimum_mapped_reads" ) ) {
 
         $logger->error(
             "Problem with arguments to \"get_run\" function."
@@ -226,7 +222,7 @@ sub get_runs_by_list {
     }
 
     # Make sure the run accessions are in an array ref.
-    eval { my @runAccessions = @{ $args->{ "runs" } } };
+    eval { my @runAccessions = @{ $args{ "runs" } } };
 
     if( $@ ) {
         
@@ -239,13 +235,11 @@ sub get_runs_by_list {
 
     my @allRunInfo = ();
 
-    foreach my $runAcc ( @{ $args->{ "runs" } } ) {
+    foreach my $runAcc ( @{ $args{ "runs" } } ) {
 
         my $restResult = $self->get_run( 
-            {
-                run => $runAcc,
-                minimum_mapped_reads => $args->{ "minimum_mapped_reads" }
-            }
+            run => $runAcc,
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" }
         );
         
         if( $restResult ) {
@@ -273,10 +267,8 @@ Accesses the API's getRunsByStudy JSON endpoint, and returns an array reference
 containing a hash reference for each run found (see C<get_run> docs for an example).
 
  my $runInfo = $rnaseqAPI->get_runs_by_study(
-    {
-        study => "E-MTAB-513",
-        minimum_mapped_reads => 0
-    }
+    study => "E-MTAB-513",
+    minimum_mapped_reads => 0
  );
 
 Study accession can be either an ArrayExpress experiment accession, or an
@@ -290,11 +282,11 @@ Returns C<undef> (and logs errors) if errors are encountered.
 
 sub get_runs_by_study {
 
-    my ( $self, $args ) = @_;
+    my ( $self, %args ) = @_;
 
     my $logger = $self->get_log_writer;
     
-    unless( $self->_hash_arguments_ok( $args, "study", "minimum_mapped_reads" ) ) {
+    unless( $self->_hash_arguments_ok( \%args, "study", "minimum_mapped_reads" ) ) {
 
         $logger->error(
             "Problem with arguments to \"get_run\" function."
@@ -305,9 +297,9 @@ sub get_runs_by_study {
     
     my $restResult = $self->_run_rest_call( 
         {
-            minimum_mapped_reads => $args->{ "minimum_mapped_reads" },
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" },
             function_name => "getRunsByStudy",
-            function_argument => $args->{ "study" }
+            function_argument => $args{ "study" }
         }
     );
 
@@ -319,7 +311,7 @@ sub get_runs_by_study {
 
         $logger->error(
             "Problem retrieving runs for ",
-            $args->{ "study" }
+            $args{ "study" }
         );
     }
 }
@@ -331,10 +323,8 @@ Accesses the API's getRunsByOrganism JSON endpoint, and returns an array
 reference containing a hash reference for each run found.
 
  my $runInfo = $rnaseqAPI->get_runs_by_organism(
-    {
-        organism => "homo_sapiens",
-        minimum_mapped_reads => 70
-    }
+    organism => "homo_sapiens",
+    minimum_mapped_reads => 70
  );
 
 Value for "organism" attribute is a species scientific name, in lower case,
@@ -354,11 +344,11 @@ run found. Returns C<undef> (and logs errors) if errors are encountered.
 
 sub get_runs_by_organism {
 
-    my ( $self, $args ) = @_;
+    my ( $self, %args ) = @_;
 
     my $logger = $self->get_log_writer;
 
-    unless( $self->_hash_arguments_ok( $args, "organism", "minimum_mapped_reads" ) ) {
+    unless( $self->_hash_arguments_ok( \%args, "organism", "minimum_mapped_reads" ) ) {
 
         $logger->error(
             "Problem with arguments to \"get_run\" function."
@@ -368,16 +358,16 @@ sub get_runs_by_organism {
     }
     
     # Fail if the organism isn't recognised.
-    unless( $self->_organism_name_ok( $args->{ "organism" } ) ) {
+    unless( $self->_organism_name_ok( $args{ "organism" } ) ) {
 
         return;
     }
     
     my $restResult = $self->_run_rest_call(
         {
-            minimum_mapped_reads => $args->{ "minimum_mapped_reads" },
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" },
             function_name => "getRunsByOrganism",
-            function_argument => $args->{ "organism" }
+            function_argument => $args{ "organism" }
         }
     );
 
@@ -389,7 +379,7 @@ sub get_runs_by_organism {
 
         $logger->error(
             "Problem retrieving runs for ",
-            $args->{ "organism" }
+            $args{ "organism" }
         );
     }
 }
@@ -405,11 +395,9 @@ be checked via the EFO website or via the Ontology Lookup Service (OLS) API:
 http://www.ebi.ac.uk/ols/docs/api
 
  my $runInfo = $rnaseqAPI->get_runs_by_organism_condition(
-    {
-        organism => "homo_sapiens",
-        condition => "central nervous system",
-        minimum_mapped_reads => 70
-    }
+    organism => "homo_sapiens",
+    condition => "central nervous system",
+    minimum_mapped_reads => 70
  );
 
 See C<get_runs_by_organism> docs for how to check organism name format and availability.
@@ -420,11 +408,11 @@ Returns C<undef> (and logs errors) if errors are encountered.
 
 sub get_runs_by_organism_condition {
 
-    my ( $self, $args ) = @_;
+    my ( $self, %args ) = @_;
 
     my $logger = $self->get_log_writer;
     
-    unless( $self->_hash_arguments_ok( $args, "organism", "minimum_mapped_reads", "condition" ) ) {
+    unless( $self->_hash_arguments_ok( \%args, "organism", "minimum_mapped_reads", "condition" ) ) {
 
         $logger->error(
             "Problem with arguments to \"get_run\" function."
@@ -434,16 +422,16 @@ sub get_runs_by_organism_condition {
     }
     
     # Fail if the organism isn't recognised.
-    unless( $self->_organism_name_ok( $args->{ "organism" } ) ) {
+    unless( $self->_organism_name_ok( $args{ "organism" } ) ) {
 
         return;
     }
     
     my $restResult = $self->_run_rest_call(
         {
-            minimum_mapped_reads => $args->{ "minimum_mapped_reads" },
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" },
             function_name => "getRunsByOrganismCondition",
-            function_argument => $args->{ "organism" } . "/" . $args->{ "condition" }
+            function_argument => $args{ "organism" } . "/" . $args{ "condition" }
         }
     );
 
@@ -455,9 +443,9 @@ sub get_runs_by_organism_condition {
 
         $logger->error(
             "Problem retrieving runs for organism \"",
-            $args->{ "organism" },
+            $args{ "organism" },
             "\" with condition \"",
-            $args->{ "condition" }
+            $args{ "condition" }
         );
     }
 }
