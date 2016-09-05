@@ -41,8 +41,6 @@ For more information about the API, see its L<documentation|http://www.ebi.ac.uk
 
 package Bio::EBI::RNAseqAPI;
 
-use strict;
-use warnings;
 use 5.10.0;
 
 use Moose;
@@ -51,6 +49,7 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
+our $VERSION = 1.0;
 
 #=head1 ATTRIBUTES
 
