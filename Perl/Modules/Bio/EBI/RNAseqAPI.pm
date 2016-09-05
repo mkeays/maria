@@ -811,7 +811,16 @@ sub _build_user_agent {
     return $userAgent;
 }
 
-# Organisms list builder.
+# Organisms list builder. This is built by accessing the API's endpoints for
+# the various genome reference resources it uses. Most of these are the
+# divisions of Ensembl (http://www.ensembl.org and http://ensemblgenomes.org)
+# -- core, plants, fungi, metazoa, and protists, as well as WormBase ParaSite
+# (http://parasite.wormbase.org/). The endpoint for each resource provides
+# key-value pairs of sample organism and reference organism, the reference
+# organism being the name of the reference genome that was used in the
+# alignment of RNA-seq reads, and the sample organism being the species the RNA
+# sample was taken from. Here we collect all the sample organisms, add them as
+# keys in an anonymous hash (pointing at 1), and return the hash reference.
 sub _build_organism_list {
 
     my ( $self ) = @_;
@@ -846,6 +855,7 @@ sub _build_organism_list {
 
             foreach my $record ( @{ $restResult } ) {
                 
+                # The sample organism is found under the key "ORGANISM".
                 $organismList->{ $record->{ "ORGANISM" } } = 1;
             }
         }
@@ -929,6 +939,7 @@ sub _hash_arguments_ok {
 }
 
 
+# REST call running -- common to all the querying functions.
 sub _run_rest_call {
 
     my ( $self, $args ) = @_;
@@ -937,21 +948,28 @@ sub _run_rest_call {
 
     my $userAgent = $self->get_user_agent;
 
+    # Start building the query URL.
     my $url = $self->get_api_base . "/json/";
-
+    
+    # If we're passed a minimum percentage of mapped reads, add this to the URL
+    # next.
     if( defined( $args->{ "minimum_mapped_reads" } ) ) {
 
         $url .= $args->{ "minimum_mapped_reads" } . "/";
     }
-
+    
+    # Add the function name and argument to the end of the URL.
     $url .= $args->{ "function_name" } . "/" . $args->{ "function_argument" };
 
+    # Run HTTP GET request.
     my $response = $userAgent->get( $url );
 
+    # If the request was successful, return the parsed JSON.
     if( $response->is_success ) {
 
         return parse_json( $response->decoded_content );
     }
+    # Otherwise, log an error and return undef.
     else {
         
         $logger->error(
@@ -966,6 +984,8 @@ sub _run_rest_call {
 }
 
 
+# Check that the organism name is allowed. This checks the passed string
+# against the keys of the hash stored in the "organism_list" attribute.
 sub _organism_name_ok {
 
     my ( $self, $organism ) = @_;
