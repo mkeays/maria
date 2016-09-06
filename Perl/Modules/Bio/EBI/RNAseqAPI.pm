@@ -4,7 +4,7 @@ Bio::EBI::RNAseqAPI - A Perl interface to the EMBL-EBI RNA-seq analysis API.
 
 =head1 DESCRIPTION
 
-This module provides a Perl-based interface to the L<EMBL-EBI|http://www.ebi.ac.uk/gxa> L<RNA-seq analysis API|http://www.ebi.ac.uk/fg/rnaseq/api>.
+This module provides a Perl-based interface to the L<EMBL-EBI|http://www.ebi.ac.uk> L<RNA-seq analysis API|http://www.ebi.ac.uk/fg/rnaseq/api/>.
 
 Functions are provided to access each endpoint provided by the API. The
 functions return the analysis information about each run found, based on the
@@ -47,7 +47,7 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-our $VERSION = 1.002;
+our $VERSION = 1.003;
 
 #=head1 ATTRIBUTES
 
