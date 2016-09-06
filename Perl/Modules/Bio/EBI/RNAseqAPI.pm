@@ -10,7 +10,7 @@ Functions are provided to access each endpoint provided by the API. The
 functions return the analysis information about each run found, based on the
 arguments passed to them.
 
-Each function takes arguments in the form of a hash reference. These usually
+Each function takes arguments in the form of a hash. These usually
 consist of one or more study or run accessions, plus a value for
 "minimum_mapped_reads". This value represents the minimum percentage of mapped
 reads to allow for each run in the results. Only information for runs with a
@@ -876,7 +876,7 @@ sub _hash_arguments_ok {
     unless( ref( $argsHash ) eq "HASH" ) {
 
         $logger->error(
-            "Arguments should be provided as a hash reference. See POD for examples."
+            "Arguments should be provided as a hash. See POD for examples."
         );
 
         return;
