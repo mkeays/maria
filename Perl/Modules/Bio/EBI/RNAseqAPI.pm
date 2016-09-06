@@ -47,7 +47,7 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-our $VERSION = 0.1;
+our $VERSION = 1.001;
 
 #=head1 ATTRIBUTES
 
