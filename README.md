@@ -1,4 +1,5 @@
-# maria
+# Maria's GitHub repository
+
 A place for various things related to my work, including but not limited to bioinformatics code in Perl and R.
 
 ## Perl
