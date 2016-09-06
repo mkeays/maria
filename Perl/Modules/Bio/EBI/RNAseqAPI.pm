@@ -6,20 +6,9 @@ Bio::EBI::RNAseqAPI - A Perl interface to the EMBL-EBI RNA-seq analysis API.
 
 This module provides a Perl-based interface to the L<EMBL-EBI|http://www.ebi.ac.uk> L<RNA-seq analysis API|http://www.ebi.ac.uk/fg/rnaseq/api/>.
 
-Functions are provided to access each endpoint provided by the API. The
-functions return the analysis information about each run found, based on the
-arguments passed to them.
-
-Each function takes arguments in the form of a hash. These usually
-consist of one or more study or run accessions, plus a value for
-"minimum_mapped_reads". This value represents the minimum percentage of mapped
-reads to allow for each run in the results. Only information for runs with a
-percentage of mapped reads greater than or equal to this value will be
-returned. To get all available information, set "minimum_mapped_reads" to zero.
-
-Analysis information for each run is returned in a hash reference. Some
-functions return array references with one hash reference per run found. See
-below for examples and more information about the results.
+The RNA-seq Analysis API enables access to analysis results for thousands of
+publicly available gene expression datasets. This module provides functions to
+access each endpoint provided by the API.
 
 For more information about the API, see its L<documentation|http://www.ebi.ac.uk/fg/rnaseq/api/doc>.
 
@@ -47,7 +36,7 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-our $VERSION = 1.003;
+our $VERSION = 1.004;
 
 #=head1 ATTRIBUTES
 
@@ -106,6 +95,18 @@ has 'organism_list' => (
 =head1 METHODS
 
 =head2 Analysis results per sequencing run
+
+These functions take arguments in the form of a hash. These usually
+consist of one or more study or run accessions, plus a value for
+"minimum_mapped_reads". This value represents the minimum percentage of mapped
+reads to allow for each run in the results. Only information for runs with a
+percentage of mapped reads greater than or equal to this value will be
+returned. To get all available information, set "minimum_mapped_reads" to zero.
+
+Analysis information for each run is returned in a hash reference. Some
+functions return array references with one hash reference per run found. See
+below for examples and more information about the results.
+
 
 =over 2
 
@@ -453,14 +454,17 @@ sub get_runs_by_organism_condition {
 
 =head2 Analysis results per study
 
+These functions take an L<ENA|http://www.ebi.ac.uk/ena>, L<SRA|http://www.ncbi.nlm.nih.gov/sra>, L<DDBJ|http://www.ddbj.nig.ac.jp/> or L<ArrayExpress|http://www.ebi.ac.uk/arrayexpress> accession or species name and return information about the corresponding dataset(s).
+
 =over 2
 
 =item B<get_study>
 
 Accesses the API's getStudy JSON endpoint. Single argument is a study
-accession (ENA, SRA, DDBJ, or ArrayExpress). Returns a hash reference
+accession (L<ENA|http://www.ebi.ac.uk/ena>, L<SRA|http://www.ncbi.nlm.nih.gov/sra>, L<DDBJ|http://www.ddbj.nig.ac.jp/> or L<ArrayExpress|http://www.ebi.ac.uk/arrayexpress>). Returns a hash reference
 containing the results for the matching study. Returns C<undef> (and logs
-errors) if errors are encountered.
+errors) if errors are encountered. If you try an ArrayExpress accession and it
+doesn't work, try the corresponding sequencing archive study accession instead.
 
  my $studyInfo = $rnaseqAPI->get_study( "SRP033494" );
 
@@ -578,6 +582,11 @@ sub get_studies_by_organism {
 =back
 
 =head2 Sample attributes per run
+
+These functions return information about the sample attributes that runs are
+annotated with. Sample attributes have a "type", e.g. "organism", and a
+"value", e.g. "Homo sapiens". Where possible, the URI of the matching ontology term
+is also annotated.
 
 =over 2
 
