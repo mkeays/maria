@@ -21,7 +21,7 @@ Analysis information for each run is returned in a hash reference. Some
 functions return array references with one hash reference per run found. See
 below for examples and more information about the results.
 
-For more information about the API, see its L<documentation|http://www.ebi.ac.uk/~rpetry/geteam/rnaseq/apispec.pdf>.
+For more information about the API, see its L<documentation|http://www.ebi.ac.uk/fg/rnaseq/api/doc>.
 
 =head1 SYNOPSIS
 
@@ -47,7 +47,7 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-our $VERSION = 1.001;
+our $VERSION = 1.002;
 
 #=head1 ATTRIBUTES
 
