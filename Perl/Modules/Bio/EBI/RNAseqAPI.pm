@@ -36,11 +36,13 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-our $VERSION = 1.004;
+our $VERSION = 1.010;
 
-#=head1 ATTRIBUTES
+=head1 ATTRIBUTES
 
-#=over 2
+=over 2
+
+=cut
 
 #=item B<api_base>
 
@@ -66,7 +68,7 @@ has 'user_agent' => (
     lazy_build  => 1
 );
 
-#=item B<logger>
+#=item B<log_writer>
 
 #Log::Log4perl::Logger object, used for logging error messages. Lazy build.
 
@@ -78,33 +80,51 @@ has 'log_writer' => (
     lazy_build  => 1
 );
 
-#=item B<organism_list>
+=item B<run_organism_list>
 
-#A hash reference containing allowed organism names as keys. Lazy build.
+An anonymous hash containing allowed organism names for downloading run
+information as keys. Access the contents like this:
 
-#=cut
+ my $runOrganisms = $rnaseqAPI->get_run_organism_list;
 
-has 'organism_list' => (
+=cut
+
+has 'run_organism_list' => (
     is  => 'rw',
     isa => 'HashRef',
     lazy_build  => 1
 );
 
-#=back
+=item B<expression_organism_list>
+
+An anonymous hash containing allowed organism names for downloading gene
+expression information as keys. Access the contents like this:
+
+ my $expressionOrganisms = $rnaseqAPI->get_expression_organism_list;
+
+=cut
+
+has 'expression_organism_list' => (
+    is  => 'rw',
+    isa => 'HashRef',
+    lazy_build => 1
+);
+
+=back
 
 =head1 METHODS
 
 =head2 Analysis results per sequencing run
 
 These functions take arguments in the form of a hash. These usually
-consist of one or more study or run accessions, plus a value for
+consist of a study accession, or one or more run accessions, plus a value for
 "minimum_mapped_reads". This value represents the minimum percentage of mapped
 reads to allow for each run in the results. Only information for runs with a
 percentage of mapped reads greater than or equal to this value will be
 returned. To get all available information, set "minimum_mapped_reads" to zero.
 
-Analysis information for each run is returned in a hash reference. Some
-functions return array references with one hash reference per run found. See
+Analysis information for each run is returned in an anonymous hash. Some
+functions return anonymous arrays with one anonymous hash per run found. See
 below for examples and more information about the results.
 
 
@@ -112,7 +132,7 @@ below for examples and more information about the results.
 
 =item B<get_run>
 
-Accesses the API's "getRun" JSON endpoint and returns analysis information for
+Accesses the API's C<getRun> JSON endpoint and returns analysis information for
 a single run, passed in the arguments.
 
 Arguments should be passed as a hash containing values for "run" and
@@ -123,26 +143,26 @@ Arguments should be passed as a hash containing values for "run" and
     minimum_mapped_reads => 0
  );
 
-Run analysis information is returned in a hash reference. Returns C<undef> (and
+Run analysis information is returned in an anonymous hash. Returns C<undef> (and
 logs errors) if errors are encountered.
 
 An example of the hash returned is as follows:
 
  {
-    STUDY_ID => "SRP001371",
-    SAMPLE_IDS => "SAMN00113441",
-    BIOREP_ID => "SRR453391",
-    RUN_IDS => "SRR453391",
-    ORGANISM => "homo_sapiens",
-    REFERENCE_ORGANISM => "homo_sapiens",
-    STATUS => "Complete",
-    ASSEMBLY_USED => "GRCh38",
-    ENA_LAST_UPDATED => "Fri Jun 19 2015 20:33:07",
-    LAST_PROCESSED_DATE => "Wed Jul 15 2015 08:35:58",
-    CRAM_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/SRR453/SRR453391/SRR453391.cram",
-    BEDGRAPH_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/SRR453/SRR453391/SRR453391.bedgraph",
-    BIGWIG_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/SRR453/SRR453391/SRR453391.bw",
-    MAPPING_QUALITY => 97
+     'BIOREP_ID' => 'ERR030885',
+     'RUN_IDS' => 'ERR030885',
+     'REFERENCE_ORGANISM' => 'homo_sapiens',
+     'MAPPING_QUALITY' => 96,
+     'ASSEMBLY_USED' => 'GRCh38',
+     'ORGANISM' => 'homo_sapiens',
+     'BEDGRAPH_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/ERR030/ERR030885/ERR030885.bedgraph',
+     'ENA_LAST_UPDATED' => 'Mon Aug 18 2014 13:40:46',
+     'STUDY_ID' => 'ERP000546',
+     'BIGWIG_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/ERR030/ERR030885/ERR030885.bw',
+     'CRAM_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/ERR030/ERR030885/ERR030885.cram',
+     'LAST_PROCESSED_DATE' => 'Sun Jul 12 2015 23:31:47',
+     'STATUS' => 'Complete',
+     'SAMPLE_IDS' => 'SAMEA962348'
  }
 
 =cut
@@ -190,8 +210,8 @@ sub get_run {
 
 =item B<get_runs_by_list>
 
-This function takes an array reference of run accessions and sequentially
-accesses the API's "getRun" JSON endpoint to collect the analysis information
+This function takes an anonymous array of run accessions and sequentially
+accesses the API's C<getRun> JSON endpoint to collect the analysis information
 for each run in the list provided.
 
  my $runInfo = $rnaseqAPI->get_runs_by_list(
@@ -199,9 +219,10 @@ for each run in the list provided.
     minimum_mapped_reads => 0
  );
 
-Run analysis information is returned as an array reference containing one hash
-reference per run (see C<get_run> documentation for an example of what the hash
-reference looks like). Returns C<undef> (and logs errors) if errors are encountered.
+Run analysis information is returned as an anonymous array containing one
+anonymous hash per run (see L</get_run> documentation for an example of what the
+anonymous hash looks like). Returns C<undef> (and logs errors) if errors are
+encountered.
 
 =cut
 
@@ -214,7 +235,7 @@ sub get_runs_by_list {
     unless( $self->_hash_arguments_ok( \%args, "runs", "minimum_mapped_reads" ) ) {
 
         $logger->error(
-            "Problem with arguments to \"get_run\" function."
+            "Problem with arguments to \"get_runs_by_list\" function."
         );
 
         return;
@@ -262,18 +283,19 @@ sub get_runs_by_list {
 
 =item B<get_runs_by_study>
 
-Accesses the API's getRunsByStudy JSON endpoint, and returns an array reference
-containing a hash reference for each run found (see C<get_run> docs for an example).
+Accesses the API's C<getRunsByStudy> JSON endpoint, and returns an anonymous array
+containing an anonymous hash for each run found (see L</get_run> docs for an example).
 
  my $runInfo = $rnaseqAPI->get_runs_by_study(
     study => "E-MTAB-513",
     minimum_mapped_reads => 0
  );
 
-Study accession can be either an ArrayExpress experiment accession, or an
-ENA/SRA/DDBJ study accession. The example above uses an ArrayExpress experiment
-accession. Examples of ENA/SRA/DDBJ accessions are "ERP000546" or "SRP013533"
-or "DRP000391".
+Study accession can be either an L<ENA|http://www.ebi.ac.uk/ena>,
+L<SRA|http://www.ncbi.nlm.nih.gov/sra>, L<DDBJ|http://www.ddbj.nig.ac.jp/> or
+L<ArrayExpress|http://www.ebi.ac.uk/arrayexpress> study accession. The example
+above uses an ArrayExpress experiment accession. Examples of ENA, SRA or DDBJ
+accessions are "ERP000546" or "SRP013533" or "DRP000391", respectively.
 
 Returns C<undef> (and logs errors) if errors are encountered.
 
@@ -288,7 +310,7 @@ sub get_runs_by_study {
     unless( $self->_hash_arguments_ok( \%args, "study", "minimum_mapped_reads" ) ) {
 
         $logger->error(
-            "Problem with arguments to \"get_run\" function."
+            "Problem with arguments to \"get_runs_by_study\" function."
         );
 
         return;
@@ -318,8 +340,8 @@ sub get_runs_by_study {
 
 =item B<get_runs_by_organism>
 
-Accesses the API's getRunsByOrganism JSON endpoint, and returns an array
-reference containing a hash reference for each run found.
+Accesses the API's C<getRunsByOrganism> JSON endpoint, and returns an anonymous
+array containing an anonymous hash for each run found.
 
  my $runInfo = $rnaseqAPI->get_runs_by_organism(
     organism => "homo_sapiens",
@@ -328,15 +350,16 @@ reference containing a hash reference for each run found.
 
 Value for "organism" attribute is a species scientific name, in lower case,
 with underscores instead of spaces. E.g. "homo_sapiens",
-"canis_lupus_familiaris", "oryza_sativa_japonica_group". To ensure your organism name is allowed, check against the B<organism_list> attribute:
+"canis_lupus_familiaris", "oryza_sativa_japonica_group". To ensure your
+organism name is allowed, check against the L</run_organism_list> attribute:
 
  my $organism = "oryctolagus_cuniculus";
- my $organismList = $rnaseqAPI->get_organism_list;
+ my $organismList = $rnaseqAPI->get_run_organism_list;
  if( $organismList->{ $organism } ) {
      say "Found $organism!";
  }
 
-Results are returned as an array reference containing a hash reference for each
+Results are returned as an anonymous array containing an anonymous hash for each
 run found. Returns C<undef> (and logs errors) if errors are encountered.
 
 =cut
@@ -350,14 +373,14 @@ sub get_runs_by_organism {
     unless( $self->_hash_arguments_ok( \%args, "organism", "minimum_mapped_reads" ) ) {
 
         $logger->error(
-            "Problem with arguments to \"get_run\" function."
+            "Problem with arguments to \"get_runs_by_organism\" function."
         );
 
         return;
     }
     
     # Fail if the organism isn't recognised.
-    unless( $self->_organism_name_ok( $args{ "organism" } ) ) {
+    unless( $self->_organism_name_ok( $args{ "organism" }, "run" ) ) {
 
         return;
     }
@@ -386,12 +409,12 @@ sub get_runs_by_organism {
 
 =item B<get_runs_by_organism_condition>
 
-Accesses the API's getRunsByOrganismCondition JSON endpoint, and returns an
-array reference containing a hash reference for each run found. An organism
+Accesses the API's C<getRunsByOrganismCondition> JSON endpoint, and returns an
+anonymous array containing an anonymous hash for each run found. An organism
 name and a "condition" -- meaning a sample attribute -- are passed in the
-arguments. The condition must exist in EFO (http://www.ebi.ac.uk/efo); this can
-be checked via the EFO website or via the Ontology Lookup Service (OLS) API:
-http://www.ebi.ac.uk/ols/docs/api
+arguments. The condition must exist in the L<Experimental Factor Ontology (EFO)|http://www.ebi.ac.uk/efo>; this can
+be checked via the EFO website or via the L<Ontology Lookup Service (OLS) API|http://www.ebi.ac.uk/ols/docs/api>.
+
 
  my $runInfo = $rnaseqAPI->get_runs_by_organism_condition(
     organism => "homo_sapiens",
@@ -399,7 +422,7 @@ http://www.ebi.ac.uk/ols/docs/api
     minimum_mapped_reads => 70
  );
 
-See C<get_runs_by_organism> docs for how to check organism name format and availability.
+See L</get_runs_by_organism> docs for how to check organism name format and availability.
 
 Returns C<undef> (and logs errors) if errors are encountered.
 
@@ -414,14 +437,14 @@ sub get_runs_by_organism_condition {
     unless( $self->_hash_arguments_ok( \%args, "organism", "minimum_mapped_reads", "condition" ) ) {
 
         $logger->error(
-            "Problem with arguments to \"get_run\" function."
+            "Problem with arguments to \"get_runs_by_organism_condition\" function."
         );
 
         return;
     }
     
     # Fail if the organism isn't recognised.
-    unless( $self->_organism_name_ok( $args{ "organism" } ) ) {
+    unless( $self->_organism_name_ok( $args{ "organism" }, "run" ) ) {
 
         return;
     }
@@ -460,31 +483,31 @@ These functions take an L<ENA|http://www.ebi.ac.uk/ena>, L<SRA|http://www.ncbi.n
 
 =item B<get_study>
 
-Accesses the API's getStudy JSON endpoint. Single argument is a study
-accession (L<ENA|http://www.ebi.ac.uk/ena>, L<SRA|http://www.ncbi.nlm.nih.gov/sra>, L<DDBJ|http://www.ddbj.nig.ac.jp/> or L<ArrayExpress|http://www.ebi.ac.uk/arrayexpress>). Returns a hash reference
+Accesses the API's C<getStudy> JSON endpoint. Single argument is a study
+accession (L<ENA|http://www.ebi.ac.uk/ena>, L<SRA|http://www.ncbi.nlm.nih.gov/sra>, L<DDBJ|http://www.ddbj.nig.ac.jp/> or L<ArrayExpress|http://www.ebi.ac.uk/arrayexpress>). Returns an anonymous hash
 containing the results for the matching study. Returns C<undef> (and logs
 errors) if errors are encountered. If you try an ArrayExpress accession and it
 doesn't work, try the corresponding sequencing archive study accession instead.
 
  my $studyInfo = $rnaseqAPI->get_study( "SRP033494" );
 
-An example of the hash reference returned is as follows:
+An example of the anonymous hash returned is as follows:
 
  {
-    STUDY_ID => "SRP033494",
-    ORGANISM => "arabidopsis_thaliana",
-    REFERENCE_ORGANISM => "arabidopsis_thaliana",
-    ASSEMBLY_USED => "TAIR10",
-    GTF_USED => "Arabidopsis_thaliana.TAIR10.26.gtf.gz",
-    STATUS => "Complete",
-    GENES_FPKM_COUNTS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/genes.rpkm.tsv",
-    GENES_TPM_COUNTS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/genes.tpm.tsv",
-    GENES_RAW_COUNTS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/genes.raw.tsv",
-    EXONS_FPKM_COUNTS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/exons.rpkm.tsv",
-    EXONS_TPM_COUNTS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/exons.tpm.tsv",
-    EXONS_RAW_COUNTS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/exons.raw.tsv",
-    SOFTWARE_VERSIONS_FTP_LOCATION => "ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/irap.versions.tsv",
-    LAST_PROCESSED_DATE => "Thu Jun 30 2016 19:55:56"
+     'GTF_USED' => 'Arabidopsis_thaliana.TAIR10.26.gtf.gz',
+     'ORGANISM' => 'arabidopsis_thaliana',
+     'STATUS' => 'Complete',
+     'ASSEMBLY_USED' => 'TAIR10',
+     'LAST_PROCESSED_DATE' => 'Thu Jun 30 2016 19:55:56',
+     'GENES_FPKM_COUNTS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/genes.rpkm.tsv',
+     'EXONS_FPKM_COUNTS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/exons.rpkm.tsv',
+     'GENES_TPM_COUNTS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/genes.tpm.tsv',
+     'SOFTWARE_VERSIONS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/irap.versions.tsv',
+     'REFERENCE_ORGANISM' => 'arabidopsis_thaliana',
+     'STUDY_ID' => 'SRP033494',
+     'EXONS_RAW_COUNTS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/exons.raw.tsv',
+     'GENES_RAW_COUNTS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/genes.raw.tsv',
+     'EXONS_TPM_COUNTS_FTP_LOCATION' => 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/atlas/rnaseq/studies/ena/SRP033494/exons.tpm.tsv'
  } 
 
 =cut
@@ -528,10 +551,10 @@ sub get_study {
 
 =item B<get_studies_by_organism>
 
-Accesses the API's getStudiesByOrganism JSON endpoint. Single argument is the
-name of an organism (see the C<organism_list> attribute for allowed names).
-Returns an array reference containing one hash reference per study found. See
-C<get_study> docs for an example of a hash reference.
+Accesses the API's C<getStudiesByOrganism> JSON endpoint. Single argument is the
+name of an organism (see the L</run_organism_list> attribute for allowed names).
+Returns an anonymous array containing one anonymous hash per study found. See
+L</get_study> docs for an example of an anonymous hash.
 
  my $studies = $rnaseqAPI->get_studies_by_organism( "arabidopsis_thaliana" );
 
@@ -553,7 +576,7 @@ sub get_studies_by_organism {
     }
 
     # Fail if the organism isn't recognised.
-    unless( $self->_organism_name_ok( $organism ) ) {
+    unless( $self->_organism_name_ok( $organism, "run" ) ) {
 
         return;
     }
@@ -592,9 +615,9 @@ is also annotated.
 
 =item B<get_sample_attributes_by_run>
 
-Accesses the API's getSampleAttributesByRun JSON endpoint. Single argument is
-the accession of the run. Returns an array reference containing one hash
-reference per sample attribute found.
+Accesses the API's C<getSampleAttributesByRun> JSON endpoint. Single argument is
+the accession of the run. Returns an anonymous array containing one anonymous
+hash per sample attribute found.
 
  my $sampleAttributes = $rnaseqAPI->get_sample_attributes_by_run( "SRR805786" );
 
@@ -602,19 +625,19 @@ An example of the results returned is as follows:
 
  [
     {
-        STUDY_ID => "SRP020492",
-        RUN_ID => "SRR805786",
-        TYPE => "cell type",
-        VALUE => "peripheral blood mononuclear cells (PBMCs)",
-        EFO_URL => "NA"
+        'VALUE' => 'peripheral blood mononuclear cells (PBMCs)',
+        'EFO_URL' => 'NA',
+        'STUDY_ID' => 'SRP020492',
+        'TYPE' => 'cell type',
+        'RUN_ID' => 'SRR805786'
     },
     {
-        STUDY_ID => "SRP020492",
-        RUN_ID => "SRR805786",
-        TYPE => "organism",
-        VALUE => "Homo sapiens",
-        EFO_URL => "http://purl.obolibrary.org/obo/NCBITaxon_9606"
-    }
+        'STUDY_ID' => 'SRP020492',
+        'TYPE' => 'organism',
+        'RUN_ID' => 'SRR805786',
+        'VALUE' => 'Homo sapiens',
+        'EFO_URL' => 'http://purl.obolibrary.org/obo/NCBITaxon_9606'
+    },
  ]
 
 EFO_URL is not always present and will be "NA" if it is not.
@@ -660,9 +683,9 @@ sub get_sample_attributes_by_run {
 
 =item B<get_sample_attributes_per_run_by_study>
 
-Accesses the API's getSampleAttributesPerRunByStudy JSON endpoint. Single
-argument is a study accession. Returns an array ref containing one hash
-reference per sample attribute. See B<get_sample_attributes_by_run> docs for an
+Accesses the API's C<getSampleAttributesPerRunByStudy> JSON endpoint. Single
+argument is a study accession. Returns an array ref containing one anonymous
+hash per sample attribute. See L</get_sample_attributes_by_run> docs for an
 example. Returns C<undef> (and logs errors) if errors are encountered.
 
  my $sampleAttributes = $rnaseqAPI->get_sample_attributes_per_run_by_study( "DRP000391" );
@@ -706,8 +729,8 @@ sub get_sample_attributes_per_run_by_study {
 
 =item B<get_sample_attributes_coverage_by_study>
 
-Accesses the API's getSampleAttributesCoverageByStudy endpoint. Single argument
-is a study accession. Returns an array reference containing one hash reference
+Accesses the API's C<getSampleAttributesCoverageByStudy> endpoint. Single argument
+is a study accession. Returns an anonymous array containing one anonymous hash
 per sample attribute. Returns C<undef> (and logs errors) if errors are
 encountered.
 
@@ -778,7 +801,166 @@ sub get_sample_attributes_coverage_by_study {
 
 =back
 
+=head2 Baseline gene expression per tissue, cell type, developmental stage, sex, and strain
+
+=over 2
+
+=item B<get_expression_by_organism_genesymbol>
+
+Accesses the API's C<getExpression> endpoint. Provide arguments as a hash,
+passing an organism name and a gene symbol, as well as a value for the minimum
+percentage of mapped reads to allow:
+
+ my $geneExpressionInfo = $rnaseqAPI->get_expression(
+    minimum_mapped_reads => 0,
+    organism    => "oryza_sativa",
+    gene_symbol => "BURP7"
+ );
+
+Results are returned as an anonymous array of anonymous hashes, with one
+anonymous hash per unique combination of tissue, cell type, developmental
+stage, sex, and strain. The median expression level of all runs is given in TPM
+(transcripts per million). Returns C<undef> (and logs errors) if errors are
+encountered.
+
+An example of the results returned is as follows:
+
+ [
+    {
+        'COEFFICIENT_OF_VARIATION' => '0.3',
+        'STRAIN' => 'NA',
+        'DEVELOPMENTAL_STAGE' => 'seedling, two leaves visible, three leaves visible',
+        'CELL_TYPE' => 'NA',
+        'SEX' => 'NA',
+        'GENE_ID' => 'OS05G0217700',
+        'MEDIAN_EXPRESSION' => '831.1',
+        'NUMBER_OF_RUNS' => 60,
+        'ORGANISM' => 'oryza_sativa',
+        'ALL_SAMPLE_ATTRIBUTES' => 'http://www.ebi.ac.uk/fg/rnaseq/api/tsv/getSampleAttributesByCondition/3238',
+        'ORGANISM_PART' => 'shoot, vascular leaf'
+    },
+    {
+        'STRAIN' => 'NA',
+        'DEVELOPMENTAL_STAGE' => '20 days after sowing',
+        'COEFFICIENT_OF_VARIATION' => '0.3',
+        'CELL_TYPE' => 'NA',
+        'GENE_ID' => 'OS05G0217700',
+        'SEX' => 'NA',
+        'ORGANISM' => 'oryza_sativa',
+        'NUMBER_OF_RUNS' => 4,
+        'MEDIAN_EXPRESSION' => '433.5',
+        'ALL_SAMPLE_ATTRIBUTES' => 'http://www.ebi.ac.uk/fg/rnaseq/api/tsv/getSampleAttributesByCondition/3192',
+        'ORGANISM_PART' => 'leaf'
+    },
+
 =cut
+
+sub get_expression_by_organism_genesymbol {
+
+    my ( $self, %args ) = @_;
+
+    my $logger = $self->get_log_writer;
+    
+    unless( $self->_hash_arguments_ok( \%args, "minimum_mapped_reads", "organism", "gene_symbol" ) ) {
+
+        $logger->error(
+            "Problem with arguments to \"get_expression_by_organism_genesymbol\" function."
+        );
+
+        return;
+    }
+    # Fail if the organism isn't recognised.
+    unless( $self->_organism_name_ok( $args{ "organism" }, "expression" ) ) {
+
+        return;
+    }
+    
+    my $restResult = $self->_run_rest_call(
+        { 
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" },
+            function_name => "getExpression",
+            function_argument => $args{ "organism" } . "/" . $args{ "gene_symbol" }
+        }
+    );
+
+    if( $restResult ) {
+        
+        return $restResult;
+    }
+    else {
+
+        $logger->error(
+            "Problem retrieving expression information for gene \"",
+            $args{ "gene_symbol" },
+            "\" in organism \"",
+            $args{ "organism" }
+        );
+    }
+}
+
+
+
+=item B<get_expression_by_gene_id>
+
+Accesses the API's C<getExpression> endpoint, but instead of querying by
+organism and gene symbol (see L</get_expression_by_organism_genesymbol>), this
+function queries by gene identifier. Also expects a value for the minimum
+percentage of mapped reads to allow.
+
+ my $geneExpressionInfo = $rnaseqAPI->get_expression(
+    gene_identifer  => "ENSG00000172023",
+    minimum_mapped_reads => 0
+ );
+
+Results are returned as an anonymous array of anonymous hashes, with one
+anonymous hash per unique combination of tissue, cell type, developmental
+stage, sex, and strain. See L</get_expression_by_organism_genesymbol> for an
+example.  The median expression level of all runs is given in TPM (transcripts
+per million). Returns C<undef> (and logs errors) if errors are encountered.
+
+=cut
+
+sub get_expression_by_gene_id {
+
+    my ( $self, %args ) = @_;
+
+    my $logger = $self->get_log_writer;
+
+    unless( $self->_hash_arguments_ok( \%args, "minimum_mapped_reads", "gene_identifier" ) ) {
+
+        $logger->error(
+            "Problem with arguments to \"get_expression_by_gene_id\" function."
+        );
+
+        return;
+    }
+    
+    my $restResult = $self->_run_rest_call(
+        {
+            minimum_mapped_reads => $args{ "minimum_mapped_reads" },
+            function_name => "getExpression", 
+            function_argument => $args{ "gene_identifier" }
+        }
+    );
+
+    if( $restResult ) {
+
+        return $restResult;
+    }
+    else {
+
+        $logger->error(
+            "Problem retrieving expression information for gene \"",
+            $args{ "gene_identifier" },
+            "\"."
+        );
+    }
+}
+
+=back
+
+=cut
+
 
 # Logger builder.
 sub _build_log_writer {
@@ -803,7 +985,7 @@ sub _build_user_agent {
     return $userAgent;
 }
 
-# Organisms list builder. This is built by accessing the API's endpoints for
+# Run organisms list builder. This is built by accessing the API's endpoints for
 # the various genome reference resources it uses. Most of these are the
 # divisions of Ensembl (http://www.ensembl.org and http://ensemblgenomes.org)
 # -- core, plants, fungi, metazoa, and protists, as well as WormBase ParaSite
@@ -812,8 +994,8 @@ sub _build_user_agent {
 # organism being the name of the reference genome that was used in the
 # alignment of RNA-seq reads, and the sample organism being the species the RNA
 # sample was taken from. Here we collect all the sample organisms, add them as
-# keys in an anonymous hash (pointing at 1), and return the hash reference.
-sub _build_organism_list {
+# keys in an anonymous hash (pointing at 1), and return the anonymous hash.
+sub _build_run_organism_list {
 
     my ( $self ) = @_;
 
@@ -829,8 +1011,6 @@ sub _build_organism_list {
         "protists",
         "wbps"
     );
-
-    my $userAgent = $self->get_user_agent;
 
     # Download the lists of organisms from the API.
     foreach my $resource ( @genomeResources ) {
@@ -866,6 +1046,38 @@ sub _build_organism_list {
 }
 
 
+# Expression organisms list builder.
+sub _build_expression_organism_list {
+
+    my ( $self ) = @_;
+
+    my $logger = $self->get_log_writer;
+
+    my $exprOrganismList = {};
+
+    my $restResult = $self->_run_rest_call(
+        {
+            function_name => "getExpressionOrganisms"
+        }
+    );
+
+    if( $restResult ) {
+
+        foreach my $record ( @{ $restResult } ) {
+
+            $exprOrganismList->{ $record->{ "ORGANISM" } } = 1;
+        }
+    }
+    else {
+
+        $logger->error(
+            "Problem collecting expression organism names from API."
+        );
+    }
+
+    return $exprOrganismList;
+}
+
 # Check that arguments to functions that require a hash ref of named arguments
 # are OK. This means:
 #  - Check the variable is actually a hash.
@@ -895,11 +1107,11 @@ sub _hash_arguments_ok {
     
     # Create a flag to unset if at least one wanted argument is missing.
     my $allWantedPresent = 1;
-
+    
     # Check that all the arguments we want are present.
     foreach my $wantedArgName ( sort keys %wantedArgNames ) {
 
-        unless( defined( $wantedArgNames{ $wantedArgName } ) ) {
+        unless( defined( $argsHash->{ $wantedArgName } ) ) {
 
             $logger->error(
                 "Required argument \"",
@@ -951,7 +1163,12 @@ sub _run_rest_call {
     }
     
     # Add the function name and argument to the end of the URL.
-    $url .= $args->{ "function_name" } . "/" . $args->{ "function_argument" };
+    $url .= $args->{ "function_name" };
+
+    if( $args->{ "function_argument" } ) {
+
+        $url .= "/" . $args->{ "function_argument" };
+    }
 
     # Run HTTP GET request.
     my $response = $userAgent->get( $url );
@@ -976,15 +1193,15 @@ sub _run_rest_call {
 }
 
 
-# Check that the organism name is allowed. This checks the passed string
-# against the keys of the hash stored in the "organism_list" attribute.
+# Check that the run organism name is allowed. This checks the passed string
+# against the keys of the hash stored in the "run_organism_list" attribute.
 sub _organism_name_ok {
 
-    my ( $self, $organism ) = @_;
+    my ( $self, $organism, $type ) = @_;
 
     my $logger = $self->get_log_writer;
 
-    my $organismList = $self->get_organism_list;
+    my $organismList = ( $type eq "run" ? $self->get_run_organism_list : $self->get_expression_organism_list );
 
     if( $organismList->{ $organism } ) {
 
@@ -995,7 +1212,7 @@ sub _organism_name_ok {
         $logger->error(
             "Organism \"",
             $organism,
-            "\" is not an allowed organism. Check organisms against the organism_list attribute."
+            "\" is not an allowed organism. Check organisms against the run_organism_list attribute."
         );
 
         return;
