@@ -20,7 +20,7 @@ For more information about the API, see its L<documentation|http://www.ebi.ac.uk
  my $rnaseqAPI = Bio::EBI::RNAseqAPI->new;
 
  my $runInfo = $rnaseqAPI->get_runs_by_study(
-    study => "E-MTAB-513" 
+    study => "E-MTAB-513", 
     minimum_mapped_reads => 0
  );
 
@@ -36,7 +36,7 @@ use LWP::UserAgent;
 use Log::Log4perl qw( :easy );
 use JSON::Parse qw( parse_json );
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 =head1 ATTRIBUTES
 

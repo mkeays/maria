@@ -20,7 +20,7 @@ For more information about the API, see its L<documentation|http://www.ebi.ac.uk
  my $rnaseqAPI = Bio::EBI::RNAseqAPI->new;
 
  my $runInfo = $rnaseqAPI->get_runs_by_study(
-    study => "E-MTAB-513" 
+    study => "E-MTAB-513", 
     minimum_mapped_reads => 0
  );
 
