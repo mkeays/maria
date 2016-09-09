@@ -1222,7 +1222,7 @@ sub _organism_name_ok {
 
 =head1 AUTHOR
 
-Maria Keays <maria.keays@gmail.com>
+Maria Keays <mkeays@cpan.org>
 
 The above email should be used for feedback about the Perl module only. All
 mail regarding the RNA-seq analysis API itself should be directed to
