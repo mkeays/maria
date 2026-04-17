@@ -73,5 +73,29 @@ my $answer = try {
 };
 ```
 
+### Database commandline tool
+When running `psql` in Bash, as with any other command, the exit status of the
+command can be checked using `$?`. Within the SQL code, `psql` allows variables
+such as `ON_ERROR_STOP` to halt a script and return non-zero exit status if
+there's an error, and `ON_ERROR_ROLLBACK` to roll back to the status before the
+failing statement was run and exit with non-zero status.
+
+## Question 1.2
 
 
+## Question 1.3
+Comments are important in Bash because the syntax can be difficult to interpret
+if you are unfamiliar with it, unlike a more human-readable language like
+Python.
+Comments are entered by prepending with a `#` character. For example:
+
+```
+# This is a special case which tells the OS which interpreter to use to parse the code.
+#!/bin/bash     
+
+# Start Jupyter virtual environment
+source ~/jupyter/bin/activate
+
+# Start Jupyter server
+jupyter notebook
+```
