@@ -1,6 +1,7 @@
 # Question 1: BASH
 
 ## Question 1.1: How to properly track errors in:
+
 ### Bash, when you call other Unix commands.
 You can check the exit status of the command that has been run by
 looking at the contents of `$?` -- if this is `0`, the command was
@@ -10,6 +11,7 @@ to `STDERR` to a file to enable examination of error logs following
 an unsuccessful command execution, using `2>`, and/or watch this
 during the run using `tail`.  It is also possible to redirect `STDERR`
 to `STDOUT` to gather all logging in one stream, using `2>&1`.
+
 ### Python script:
 Python allows `try`, `except`, `else`, and `finally` statements to enable
 graceful handling of errors. The code in the `try` block is the code
@@ -41,4 +43,37 @@ else :
 finally :
     print( "Finished processing." )
 ```
-        
+
+### Perl script
+There are a few ways to manage error handling in Perl. The basic built-in way
+is to wrap code in an `eval` block and then check the contents of `$@` for
+errors. There are also various modules available such as `Error.pm` and
+`Try::Tiny`. `Try::Tiny` allows similar try/catch behaviour as above in Python.
+For example:
+
+```
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use 5.10.0;
+
+use Try::Tiny;
+
+say "Hello!";
+
+my $a = 2;
+
+my $answer = try {
+    say "Enter a number:";
+    my $b = <STDIN>;
+    $a = $a/$b;
+} catch {
+    warn "There was an error: $_\n";    # Error message sent to $_
+} finally {
+    say "Processing finished."
+};
+```
+
+
+
