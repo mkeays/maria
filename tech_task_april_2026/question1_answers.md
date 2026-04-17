@@ -60,8 +60,6 @@ use 5.10.0;
 
 use Try::Tiny;
 
-say "Hello!";
-
 my $a = 2;
 
 my $answer = try {
