@@ -67,7 +67,7 @@ my $answer = try {
     my $b = <STDIN>;
     $a = $a/$b;
 } catch {
-    warn "There was an error: $_\n";    # Error message sent to $_
+    warn "There was an error: $_";    # Error message sent to $_
 } finally {
     say "Processing finished."
 };
