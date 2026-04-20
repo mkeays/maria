@@ -22,7 +22,7 @@ select CHROMOSOME, COUNT(ID_GENE) from gene GROUP BY CHROMOSOME;
 Answer:
 
 | CHROMOSOME | count(id_gene) |
--------------------------------
+| --- | --- |
 | 1	| 51 |
 | 2	| 25 |
 | 3	| 31 |
