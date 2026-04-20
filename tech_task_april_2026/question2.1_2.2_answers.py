@@ -35,9 +35,6 @@ def get_min_max_mutation_sampleids( df ) :
     return( ( lowest_unique_mutations, highest_unique_mutations ) )
 
 
-
-
-
 if __name__ == "__main__" :
 
     filename = sys.argv[1]
@@ -51,5 +48,6 @@ if __name__ == "__main__" :
     
     print( f"The sample ID with the lowest unique mutations is {min_max_mutation_sampleids[0]}" )
     print( f"The sample ID with the highest unique mutations is {min_max_mutation_sampleids[1]}" )
+
 
 
