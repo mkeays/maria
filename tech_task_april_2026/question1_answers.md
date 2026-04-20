@@ -83,7 +83,7 @@ failing statement was run and exit with non-zero status.
 ## Question 1.2
 One option is to send STDERR and STDOUT from each job to log files, and
 monitor these periodically for error messages. The `bjobs` command can be used
-from a Bash script to look for submitted jobs still running, and if they are
+from a Bash script to look for submitted LSF jobs still running, and if they are
 finished the log files can be checked for errors. You could add a condition
 with an `if` statement to the script to ensure all submitted jobs are completed
 before continuing, as well as what to do if any jobs exited with errors. Then
