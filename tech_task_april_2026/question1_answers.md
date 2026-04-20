@@ -81,7 +81,14 @@ there's an error, and `ON_ERROR_ROLLBACK` to roll back to the status before the
 failing statement was run and exit with non-zero status.
 
 ## Question 1.2
-
+One option is to send STDERR and STDOUT from each job to log files, and
+monitor these periodically for error messages. The `bjobs` command can be used
+from a Bash script to look for submitted jobs still running, and if they are
+finished the log files can be checked for errors. You could add a condition
+with an `if` statement to the script to ensure all submitted jobs are completed
+before continuing, as well as what to do if any jobs exited with errors. Then
+if any jobs failed the script could exit with a non-zero code and some details
+about failing jobs.
 
 ## Question 1.3
 Comments are important in Bash because the syntax can be difficult to interpret
