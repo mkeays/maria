@@ -3,7 +3,7 @@
 ## Question 1.1: How to properly track errors in:
 
 ### Bash, when you call other Unix commands.
-You can check the exit status of the command that has been run by
+You can check the exit status of each command that has been run by
 looking at the contents of `$?` -- if this is `0`, the command was
 successful. If not, there was an error.
 For more clues about the error, you can also direct errors logged
@@ -11,6 +11,9 @@ to `STDERR` to a file to enable examination of error logs following
 an unsuccessful command execution, using `2>`, and/or watch this
 during the run using `tail`.  It is also possible to redirect `STDERR`
 to `STDOUT` to gather all logging in one stream, using `2>&1`.
+You can add `set -e` to the top of the script to ensure the script stops
+immediately if there is an error. You can also use `trap` to catch particular
+error signals and make sure the script exits in a predicable way. 
 
 ### Python script:
 Python allows `try`, `except`, `else`, and `finally` statements to enable
@@ -81,14 +84,14 @@ there's an error, and `ON_ERROR_ROLLBACK` to roll back to the status before the
 failing statement was run and exit with non-zero status.
 
 ## Question 1.2
-One option is to send STDERR and STDOUT from each job to log files, and
-monitor these periodically for error messages. The `bjobs` command can be used
-from a Bash script to look for submitted LSF jobs still running, and if they are
+One option is to send STDERR and STDOUT from each job to log files, and monitor
+these periodically for error messages. The `bjobs` command can be used from a
+Bash script to look for submitted LSF jobs still running, and if they are
 finished the log files can be checked for errors. You could add a condition
 with an `if` statement to the script to ensure all submitted jobs are completed
 before continuing, as well as what to do if any jobs exited with errors. Then
-if any jobs failed the script could exit with a non-zero code and some details
-about failing jobs.
+if any jobs failed the script could exit with a non-zero code and print some
+details about failing jobs from the log files.
 
 ## Question 1.3
 Comments are important in Bash because the syntax can be difficult to interpret
