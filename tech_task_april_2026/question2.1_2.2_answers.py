@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 
 """
+Question 2.1:
 Given a DataFrame with column headings including "icgc_mutation_id",
 "mutated_from_allele", and "mutated_to_allele", return a pd.Series containing
 each unique mutation, its from and to alleles, and the counts for each one.
@@ -19,6 +20,7 @@ def count_unique_mutations( df ) :
     return( counts )
 
 """
+Question 2.2
 Given a DataFrame with column headings including "icgc_sample_id",
 "icgc_mutation_id", return a tuple containing the ICGC sample IDs with the
 lowest and highest unique mutation ID count.
@@ -40,10 +42,12 @@ if __name__ == "__main__" :
     filename = sys.argv[1]
 
     df = pd.read_csv( filename, sep = "\t" )
-
+    
+    # Question 2.1
     mutation_counts = count_unique_mutations( df )
     print( mutation_counts )
     
+    # Question 2.2
     min_max_mutation_sampleids = get_min_max_mutation_sampleids( df )
     
     print( f"The sample ID with the lowest unique mutations is {min_max_mutation_sampleids[0]}" )
